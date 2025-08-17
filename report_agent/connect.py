@@ -1,7 +1,7 @@
 import psycopg2
 
 HOST = "localhost"
-DATABASE = "bookstore"
+DATABASE = "demo"
 USER = "postgres"
 PASSWORD = "postgres"
 
