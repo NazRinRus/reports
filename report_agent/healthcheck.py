@@ -1,6 +1,6 @@
-import os, glob
+import os, glob, datetime, yaml, json
 from connect import db_connect
-from db_conf import SQL_DIR
+from db_conf import SQL_DIR, REPORT_DIR
 
 # функция отсечения от имени файла пути и расширения
 def get_scriptname(filename: str):
@@ -36,4 +36,21 @@ def get_sql_metrics(sql_scripts: list):
         result[metric_key] = metric_value
     return result
 
-print(get_sql_metrics(get_sqlscripts(SQL_DIR)))
+# функция формирования файла-отчета
+def report_generation(result_report: dict):
+    current_date = datetime.datetime.now().strftime("%d_%m_%Y")
+    filename = f"{REPORT_DIR}/report_{current_date}.json"
+#    report_yaml = yaml.dump(result_report, allow_unicode=True)
+    report_json = json.dumps(result_report, indent=4, ensure_ascii=False)
+    result = True
+    try:
+        with open(filename, 'w', encoding='utf-8') as file:
+            file.write(report_json)
+    except:
+        result = False
+        print(f"Ошибка при записи файла {filename}", error)
+    return result
+
+result_report = get_sql_metrics(get_sqlscripts(SQL_DIR))
+print(result_report)
+report_generation(result_report)

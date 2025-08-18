@@ -1,0 +1,14 @@
+{
+    "databases": [
+        [
+            "demo",
+            703.0,
+            null
+        ]
+    ],
+    "pg_version": [
+        [
+            "17.5 (Ubuntu 17.5-1.pgdg24.04+1)"
+        ]
+    ]
+}

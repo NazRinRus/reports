@@ -4,3 +4,4 @@ USER = "postgres"
 PASSWORD = "postgres"
 
 SQL_DIR = "./sql_queries"
+REPORT_DIR = "./report_dir"
