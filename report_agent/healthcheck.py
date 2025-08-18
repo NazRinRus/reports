@@ -1,4 +1,4 @@
-import os, glob, datetime, yaml, json
+import os, glob, datetime, yaml, json, socket
 from connect import db_connect
 from db_conf import SQL_DIR, REPORT_DIR
 
@@ -39,7 +39,8 @@ def get_sql_metrics(sql_scripts: list):
 # функция формирования файла-отчета
 def report_generation(result_report: dict):
     current_date = datetime.datetime.now().strftime("%d_%m_%Y")
-    filename = f"{REPORT_DIR}/report_{current_date}.json"
+    hostname = socket.gethostname()
+    filename = f"{REPORT_DIR}/report_{hostname}_{current_date}.json"
 #    report_yaml = yaml.dump(result_report, allow_unicode=True)
     report_json = json.dumps(result_report, indent=4, ensure_ascii=False)
     result = True
@@ -51,6 +52,8 @@ def report_generation(result_report: dict):
         print(f"Ошибка при записи файла {filename}", error)
     return result
 
-result_report = get_sql_metrics(get_sqlscripts(SQL_DIR))
-print(result_report)
-report_generation(result_report)
+if __name__ == "__main__":
+
+    result_report = get_sql_metrics(get_sqlscripts(SQL_DIR))
+    print(result_report)
+    report_generation(result_report)

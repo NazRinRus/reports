@@ -1,2 +1,6 @@
-psycopg2==latest
-pyyaml==latest
+psycopg2
+pyyaml
+fastapi
+uvicorn
+python-multipart
+requests
