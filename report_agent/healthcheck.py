@@ -1,6 +1,7 @@
 import os, glob, datetime, yaml, json, socket
 from connect import db_connect
 from db_conf import SQL_DIR, REPORT_DIR
+from report_exporter import upload_report_http
 
 # функция отсечения от имени файла пути и расширения
 def get_scriptname(filename: str):
@@ -43,17 +44,15 @@ def report_generation(result_report: dict):
     filename = f"{REPORT_DIR}/report_{hostname}_{current_date}.json"
 #    report_yaml = yaml.dump(result_report, allow_unicode=True)
     report_json = json.dumps(result_report, indent=4, ensure_ascii=False)
-    result = True
     try:
         with open(filename, 'w', encoding='utf-8') as file:
             file.write(report_json)
     except:
-        result = False
         print(f"Ошибка при записи файла {filename}", error)
-    return result
+    return filename
 
 if __name__ == "__main__":
 
     result_report = get_sql_metrics(get_sqlscripts(SQL_DIR))
     print(result_report)
-    report_generation(result_report)
+    upload_report_http(report_generation(result_report))
