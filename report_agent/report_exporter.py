@@ -34,7 +34,7 @@ def upload_report_nfs(file_path: str):
 
     return destination_path
 
-# функция экспорта файлов-рапортов по EMail
+# функция экспорта содержимого рапортов по EMail
 def upload_report_email(file_path: str):
     # Проверяем, существует ли исходный файл
     if not os.path.exists(file_path):
