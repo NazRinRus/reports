@@ -7,3 +7,4 @@ SERVER_HOST = "localhost"
 
 SQL_DIR = "./sql_queries"
 REPORT_DIR = "./report_dir"
+NFS_DIR = "/mnt/report_dir"
