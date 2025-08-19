@@ -4,6 +4,7 @@ USER = "postgres"
 PASSWORD = "postgres"
 
 SERVER_HOST = "localhost"
+SERVER_EMAIL = "r.nazarov@zt.ru"
 
 SQL_DIR = "./sql_queries"
 REPORT_DIR = "./report_dir"
