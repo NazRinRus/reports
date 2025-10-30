@@ -1,57 +1,17 @@
-import requests, shutil, os, subprocess
-from db_conf import SERVER_HOST, NFS_DIR, SERVER_EMAIL
+import http.server
+from prometheus_client import start_http_server, Counter
 
-# функция экспорта файлов-рапортов по протоколу http(s)
-def upload_report_http(file_path: str):
-    url = f"http://{SERVER_HOST}:8001/upload/"
-    if not os.path.exists(file_path):
-        print(f"Ошибка: файл {file_path} не существует!")
-        exit(1)
+class MyHandler(http.server.BaseHTTPRequestHandler):
+    def do_GET(self):
+        REQUESTS.inc()
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"Hello World")
 
-    with open(file_path, "rb") as f:
-        files = {"file": (file_path, f)}
-        response = requests.post(url, files=files)
-
-    return response.json()
-
-# функция экспорта файлов-рапортов в NFS-директорию
-def upload_report_nfs(file_path: str):
-    # Проверяем, существует ли исходный файл
-    if not os.path.exists(file_path):
-        print(f"Ошибка: файл {file_path} не существует!")
-        exit(1)
-    # Проверяем, существует ли целевая директория, и создаем её, если нет
-    if not os.path.exists(NFS_DIR):
-        os.makedirs(NFS_DIR, exist_ok=True)
-    # Формируем полный путь к целевому файлу (можно сохранить исходное имя файла)
-    destination_path = os.path.join(NFS_DIR, os.path.basename(file_path))
-    # Копируем файл
-    try:
-        shutil.copy2(file_path, destination_path)  # copy2 сохраняет метаданные (время модификации и т. д.)
-        print(f"Файл успешно скопирован в {destination_path}")
-    except Exception as e:
-        print(f"Ошибка при копировании файла: {e}")
-
-    return destination_path
-
-# функция экспорта содержимого рапортов по EMail
-def upload_report_email(file_path: str):
-    # Проверяем, существует ли исходный файл
-    if not os.path.exists(file_path):
-        print(f"Ошибка: файл {file_path} не существует!")
-        exit(1)
-    try:
-        with open(file_path, 'r') as file:
-            report_content = file.read()
-    except:
-        print(f"Ошибка при чтения файла {file_path}", error)
-    subprocess.run(
-        ["mail", "-s", "report", SERVER_EMAIL],
-        input=report_content,
-        text=True,
-        check=True
-    )
-    return report_content
+REQUESTS = Counter('hello_worlds_total', 'Hello Worlds requested.')
 
 if __name__ == "__main__":
-    upload_report_http('./report_dir/report_notebook_18_08_2025.json')
+    
+    start_http_server(8000)
+    server = http.server.HTTPServer(('192.168.0.140', 8001), MyHandler)
+    server.serve_forever()
