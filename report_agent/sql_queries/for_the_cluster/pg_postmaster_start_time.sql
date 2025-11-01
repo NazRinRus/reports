@@ -1,1 +1,1 @@
-SELECT pg_postmaster_start_time();
+SELECT pg_postmaster_start_time()::text;

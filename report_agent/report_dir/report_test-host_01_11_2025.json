@@ -11,6 +11,7 @@
             null
         ]
     ],
+    "hostname": "test-host",
     "pg_hba_file_rules": [
         [
             "local",
@@ -136,6 +137,11 @@
     "pg_is_in_recovery": [
         [
             false
+        ]
+    ],
+    "pg_postmaster_start_time": [
+        [
+            "2025-11-01 19:26:48.790317+00"
         ]
     ],
     "pg_settings": [

@@ -1,4 +1,4 @@
-import os, glob, datetime, json, socket # yaml
+import os, subprocess, glob, datetime, json, socket # yaml
 import db_conf
 from sqlalchemy import create_engine, text
 from pathlib import Path
@@ -88,6 +88,44 @@ class PostgreSQLCluster:
     """
     def __init__(self, connect_string: str = 'postgresql://postgres:@localhost:5432/postgres'):
         self.connect_string = connect_string
+        self._generate_metric_methods_for_sh()
+
+    def run_command(self, command: str):
+        """
+        Метод выполнения команд оболочки
+        """
+        result_cmd = subprocess.run(
+            ["sudo", "bash", "-c", command],
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+        return result_cmd.stdout.strip() if result_cmd.returncode == 0 else None
+
+    def _generate_metric_methods_for_sh(self):
+        """
+        Автоматически генерирует методы get_metric_* для всех .sh-файлов в директории
+        """
+        sh_dir = db_conf.SH_DIR
+        for sh_file in os.listdir(sh_dir):
+            if sh_file.endswith('.sh'):
+                method_name = f"get_metric_{get_scriptname(sh_file)}"
+                sh_path = os.path.join(sh_dir, sh_file)
+                
+                # Создаем метод для этого SQL файла
+                def create_metric_method(sh_path=sh_path):
+                    def metric_method(self):
+                        result = {}
+                        sh_cmnd = get_content_file(sh_path)    
+                        metric_key = get_scriptname(sh_path)
+                        metric_value = self.run_command(sh_cmnd)
+                        result[metric_key] = metric_value
+                        return result
+                    return metric_method
+                
+                # Добавляем метод в класс
+                setattr(PostgreSQLCluster, method_name, create_metric_method())
+
 
     def connect_db(self, sql_queries: str):
         """
@@ -105,14 +143,13 @@ class PostgresDatabase(PostgreSQLCluster):
     """
     def __init__(self, connect_string: str = 'postgresql://postgres:@localhost:5432/postgres'):
         super().__init__(connect_string)
-        self._generate_metric_methods()
+        self._generate_metric_methods_for_sql()
     
-    def _generate_metric_methods(self):
+    def _generate_metric_methods_for_sql(self):
         """
         Автоматически генерирует методы get_metric_* для всех SQL файлов в директории
         """
         sql_dir = os.path.join(db_conf.SQL_DIR, 'for_the_cluster')
-        sh_dir = db_conf.SH_DIR
         
         for sql_file in os.listdir(sql_dir):
             if sql_file.endswith('.sql'):
