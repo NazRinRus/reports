@@ -108,7 +108,9 @@ class PostgresDatabase(PostgreSQLCluster):
         self._generate_metric_methods()
     
     def _generate_metric_methods(self):
-        """Автоматически генерирует методы get_metric_* для всех SQL файлов в директории"""
+        """
+        Автоматически генерирует методы get_metric_* для всех SQL файлов в директории
+        """
         sql_dir = os.path.join(db_conf.SQL_DIR, 'for_the_cluster')
         
         for sql_file in os.listdir(sql_dir):
