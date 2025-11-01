@@ -1,14 +1,16 @@
-import os, json
+import os, time, json
 from prometheus_client import start_http_server, Gauge
 from db_conf import REPORT_DIR
-import http.server
+# import http.server
 
-class MyHandler(http.server.BaseHTTPRequestHandler):
-    def do_GET(self):
-        REQUESTS.inc()
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write(b"Hello World")
+# class MyHandler(http.server.BaseHTTPRequestHandler):
+#     def do_GET(self):
+#         REQUESTS.inc()
+#         self.send_response(200)
+#         self.end_headers()
+#         self.wfile.write(b"Hello World")
+
+DB_SIZE = Gauge('database_size', 'Database size in MB', labelnames=['database'])
 
 class Metrics:
     """
@@ -55,14 +57,17 @@ class Metrics:
 
 if __name__ == "__main__":
 
-    P = Metrics(os.readlink(os.path.join(REPORT_DIR, 'latest')))
-    print(P.get_metric_names())
+    start_http_server(8000)
+    while True:
+        P = Metrics(os.readlink(os.path.join(REPORT_DIR, 'latest')))
+        print(P.get_metric_names())
 
-    for database in P.get_report_json()['databases']:
-        DB_SIZE = Gauge(f"database_size_{database[0]}", f"{database[0]} database size")
-        DB_SIZE.set(database[1])
-        print(database[0] + ' : ' + str(database[1]))
-
-    start_http_server(8090)
-    server = http.server.HTTPServer(('192.168.0.140', 8001), MyHandler)
-    server.serve_forever()
+        for database in P.get_report_json()['databases']:
+            
+            DB_SIZE.labels(database[0]).set(database[1])
+            print(database[0] + ' : ' + str(database[1]))
+        
+        time.sleep(60)
+    
+    # server = http.server.HTTPServer(('192.168.0.140', 8001), MyHandler)
+    # server.serve_forever()

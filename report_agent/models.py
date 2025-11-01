@@ -112,6 +112,7 @@ class PostgresDatabase(PostgreSQLCluster):
         Автоматически генерирует методы get_metric_* для всех SQL файлов в директории
         """
         sql_dir = os.path.join(db_conf.SQL_DIR, 'for_the_cluster')
+        sh_dir = db_conf.SH_DIR
         
         for sql_file in os.listdir(sql_dir):
             if sql_file.endswith('.sql'):
